@@ -4,7 +4,7 @@ SEARCH_PATHS = [""]
 
 IS_WINDOWS = sys.platform.startswith("win")
 IS_LINUX = sys.platform in ["linux", "linux2"]
-IS_MAC = sys.platform in "darwin"
+IS_MAC = sys.platform == "darwin"
 
 
 def expand_path(path: str):
