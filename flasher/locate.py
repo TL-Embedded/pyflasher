@@ -20,6 +20,7 @@ def locate_file(fname: str):
     
     raise FileNotFoundError(f"Cannot locate \"{fname}\"")
 
+
 def locate_library(library: str):
     if IS_LINUX:
         library += ".so"
@@ -31,6 +32,7 @@ def locate_library(library: str):
         raise LookupError("Unknown operating system")
     
     return locate_file(library)
+
 
 def locate_executable(name: str):
 
@@ -48,4 +50,4 @@ def locate_executable(name: str):
 
 def add_search_path(path: str):
     global SEARCH_PATHS
-    SEARCH_PATHS.append(expand_path(path))
+    SEARCH_PATHS.insert(0, expand_path(path))

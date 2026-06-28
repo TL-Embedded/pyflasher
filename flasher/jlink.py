@@ -11,8 +11,10 @@ class JLink():
 
     DLL = None
 
+
     def __init__(self):
         self._dll = self._load_dll()
+
 
     def open(self):
         self._command('SuppressGUI 1')
@@ -23,9 +25,11 @@ class JLink():
         self._command('SetBatchMode 0')
         self.is_open = True
 
+
     def close(self):
         self._dll.JLINKARM_Close()
         self.is_open = False
+
 
     def connect(self, target: str):
         if self._command("Device = " + target, raise_errors=False) != 0:
@@ -35,19 +39,23 @@ class JLink():
         if self._dll.JLINKARM_Connect() != 0:
             raise FlasherError("Target not detected")
 
+
     def run(self):
         if self._dll.JLINKARM_Go() != 0:
             raise FlasherError("Target go failed")
 
+
     def halt(self):
         if self._dll.JLINKARM_Halt() != 0:
             raise FlasherError("Target halt failed")
+
 
     def reset(self, run: bool = True):
         if self._dll.JLINKARM_Reset() != 0:
             raise FlasherError("Target reset failed")
         if run:
             self.run()
+
 
     def read(self, path: str, offset: int, size: int):
         self.halt()
@@ -59,20 +67,21 @@ class JLink():
                 raise FlasherError(f"Target read failed")
             f.write(bytes(buffer))
 
-    def erase(self, offset: int, size: int = None):
-        self.halt()
 
-        if size == None:
-            # Mass erase
-            if self._dll.JLINK_EraseChip() != 0:
-                raise FlasherError("Target erase failed")
-            return
-        
+    def erase(self, offset: int, size: int):
+        self.halt()
         erase_func = self._get_pfunc(40, [ctypes.c_uint64, ctypes.c_uint64])
         if erase_func(offset, offset + size) != 0:
             raise FlasherError("Target erase failed")
+    
+    
+    def mass_erase(self):
+        self.halt()
+        if self._dll.JLINK_EraseChip() != 0:
+            raise FlasherError("Target erase failed")
 
-    def program(self, path: str, offset: int = None, run: bool = True):
+
+    def program(self, path: str, offset: int, run: bool = True):
         self.halt()
 
         if offset == None:
@@ -83,11 +92,13 @@ class JLink():
         if run:
             self.reset(run)
 
+
     def _get_pfunc(self, index: int, signature: list):
         self._dll.JLINK_GetpFunc.restype = ctypes.c_void_p
         ptr = self._dll.JLINK_GetpFunc(index)
         prototype = ctypes.CFUNCTYPE(ctypes.c_int, *signature)
         return ctypes.cast(ptr, prototype)
+
 
     def _command(self, cmd: str, raise_errors = True) -> int:
         buffer_size = 336
@@ -100,11 +111,13 @@ class JLink():
             return -1
         return res
     
+
     def _find_dll(self) -> str:
         if locate.IS_WINDOWS:
             return locate.locate_library("JLink_x64")
         return locate.locate_library("libjlinkarm") 
     
+
     def _load_dll(self):
         
         if JLink.DLL == None:
