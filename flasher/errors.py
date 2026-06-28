@@ -1,0 +1,3 @@
+
+class FlasherError(Exception):
+    pass
