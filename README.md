@@ -58,7 +58,7 @@ Resumes firmware execution on the target.
 
 ## Halt
 
-`.run()`
+`.halt()`
 
 Halts firmware execution on the target.
 
