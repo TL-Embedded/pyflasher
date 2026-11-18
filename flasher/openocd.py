@@ -91,6 +91,8 @@ class OpenOCD():
                 raise FlasherError("Target not detected")
             if "target not halted" in stderr:
                 raise FlasherError("Target not halted")
+            if "Can't find target/" in stderr:
+                raise FlasherError(f"Unknown target {self._target}")
             
             print(stderr)
             raise FlasherError("Unknown failure")
@@ -109,7 +111,12 @@ class OpenOCD():
         target = target.lower()
         match = re.match(r"^(stm32[\w]{2})", target)
         if match:
-            return match.group(1) + "x"
+            # TODO: This is getting ugly....
+            # We probably need to make a targets.json which encodes all this nonsense
+            name = match.group(1)
+            if name in ["stm32l0", "stm32l1"]:
+                return name
+            return name + "x"
         
         match = re.match(r"^(nrf[\d]{2})", target)
         if match:
